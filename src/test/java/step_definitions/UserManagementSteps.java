@@ -1,10 +1,10 @@
 package step_definitions;
 
-import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import pages.CraterCommonPage;
 import pages.CraterDashboardPage;
 import pages.CraterLoginPage;
 import utils.BrowserUtils;
@@ -16,11 +16,15 @@ public class UserManagementSteps {
 	CraterLoginPage craterLogin = new CraterLoginPage();
 	CraterDashboardPage dashboard = new CraterDashboardPage();
 	BrowserUtils utils = new BrowserUtils();
+	CraterCommonPage commonPage = new CraterCommonPage();
+	
+	
+	// valid login test
 	
 	@Given("user is on the login page")
 	public void user_is_on_the_login_page() {
 	    Driver.getDriver().get(TestDataReader.getProperty("craterUrl"));
-	    Driver.getDriver().manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+	   
 	}
 	
 	@When("user enters valid {string} and {string}")
@@ -40,25 +44,54 @@ public class UserManagementSteps {
 		Assert.assertTrue(dashboard.amountDueText.isDisplayed());
 	}
 	
+	@Then("user quits the browser")
+	public void user_quits_the_browser() {
+	   Driver.quitDriver();
+	}
+	
 	
 	// invalid login steps
-	
 	@When("user enters invalid {string} and {string}")
-	public void user_enters_invalid_and(String string, String string2) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+	public void user_enters_invalid_and(String invalidUseremail, String invalidPassword) {
+		utils.sendKeysWithActionsClass(craterLogin.useremail, invalidUseremail);
+		utils.sendKeysWithActionsClass(craterLogin.password, invalidPassword);
 	}
 
 	@Then("an error message appears")
 	public void an_error_message_appears() {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+	    utils.waitUntilElementVisible(craterLogin.invalidUserErrorMessage);
+	    Assert.assertTrue(craterLogin.invalidUserErrorMessage.isDisplayed());
 	}
 
 	@Then("user is not logged in")
 	public void user_is_not_logged_in() {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+		Assert.assertTrue(craterLogin.loginButton.isDisplayed());
+		Assert.assertTrue(Driver.getDriver().getCurrentUrl().contains("login"));
+		
+	}
+	
+	
+	// invalid login scenario outline
+	boolean useremailEmpty;
+	boolean passwordEnpty;
+	@When("user enters invalid useremail {string} and password {string}")
+	public void user_enters_invalid_useremail_and_password(String invalidUseremail, String invalidPassword) {
+		useremailEmpty = invalidUseremail.isBlank();
+		passwordEnpty = invalidPassword.isBlank();
+				
+		utils.sendKeysWithActionsClass(craterLogin.useremail, invalidUseremail);
+		utils.sendKeysWithActionsClass(craterLogin.password, invalidPassword);
+	}
+	
+	@Then("error messages appear")
+	public void error_messages_appear() {
+	    if (useremailEmpty || passwordEnpty) {
+	    	utils.waitUntilElementVisible(craterLogin.fieldRequired);
+		    Assert.assertTrue(craterLogin.fieldRequired.isDisplayed());
+		} else {
+			utils.waitUntilElementVisible(craterLogin.invalidUserErrorMessage);
+			Assert.assertTrue(craterLogin.invalidUserErrorMessage.isDisplayed());
+		}
 	}
 	
 
