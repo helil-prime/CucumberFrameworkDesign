@@ -6,8 +6,13 @@ Feature: Amazon search
     When I enter the search term "<items>"
     And I click on search button
     Then I should see the search item "<items>" on search result page
+    And the page title should contain the searched item "<items>"
 
     Examples: 
-      | name  |
-      | name1 |
-      | name2 |
+      |  items |
+      | coffee mug |
+      | pretty coffee mug |
+      | ugly coffee mug |
+      | small coffee mug |
+      | golden coffee mug |
+      
